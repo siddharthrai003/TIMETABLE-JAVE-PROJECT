@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Timetable Conflict Detector</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">📅</div>
+                <div>
+                    <h2>Schedulr</h2>
+                    <small>College Timetable</small>
+                </div>
+            </div>
+
+            <nav class="nav-list">
+                <button class="nav-btn active" data-page="dashboard">Dashboard</button>
+                <button class="nav-btn" data-page="manage">Manage Timetable</button>
+                <button class="nav-btn" data-page="conflicts">Conflict Detection</button>
+                <button class="nav-btn" data-page="overview">Timetable Overview</button>
+                <button class="nav-btn" data-page="about">About Project</button>
+            </nav>
+        </aside>
+
+        <!-- Main Area -->
+        <div class="main">
+            <!-- Top Navbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button id="menuBtn" class="menu-btn" aria-label="Menu">☰</button>
+                    <span class="top-icon">🗓️</span>
+                    <div>
+                        <h1>Automated Timetable Conflict Detector</h1>
+                        <p class="subtitle">College Scheduling System</p>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <span id="currentDate" class="pill">Loading...</span>
+                    <span id="statusBadge" class="pill status-offline">
+                        <span class="dot"></span>
+                        <span class="status-label">Checking...</span>
+                    </span>
+                </div>
+            </header>
+
+            <!-- Loading Indicator -->
+            <div id="loader" class="loader hidden">Loading data from Java backend...</div>
+
+            <main class="content">
+                <!-- 1. DASHBOARD -->
+                <section id="page-dashboard" class="page active">
+                    <div class="page-head">
+                        <div>
+                            <h2>Dashboard</h2>
+                            <p>Overview of timetable entries and detected scheduling conflicts.</p>
+                        </div>
+                        <div class="actions-row">
+                            <button class="btn btn-primary" data-goto="manage">+ Add Entry</button>
+                            <button class="btn btn-purple" id="quickCheckBtn">Detect All Conflicts</button>
+                            <button class="btn btn-light" data-goto="overview">Weekly Grid</button>
+                            <button class="btn btn-light" id="refreshBtn">Refresh</button>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span>Total Timetable Entries</span>
+                            <strong id="statEntries">0</strong>
+                        </div>
+                        <div class="stat-card">
+                            <span>Total Faculty Conflicts</span>
+                            <strong id="statFaculty">0</strong>
+                        </div>
+                        <div class="stat-card">
+                            <span>Total Room Conflicts</span>
+                            <strong id="statRoom">0</strong>
+                        </div>
+                        <div class="stat-card">
+                            <span>Total Section Conflicts</span>
+                            <strong id="statSection">0</strong>
+                        </div>
+                    </div>
+
+                    <div class="two-col">
+                        <div class="card">
+                            <h3>Conflict Summary</h3>
+                            <div id="dashboardSummary" class="mt-12">Loading...</div>
+                        </div>
+                        <div class="card">
+                            <h3>Recent Timetable Entries</h3>
+                            <div id="recentEntries" class="mt-12">Loading...</div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-20">
+                        <h3>Weekly Timetable Overview</h3>
+                        <div id="dashboardGrid" class="weekly-grid mt-12"></div>
+                    </div>
+                </section>
+
+                <!-- 2. MANAGE TIMETABLE -->
+                <section id="page-manage" class="page">
+                    <div class="page-head">
+                        <div>
+                            <h2>Manage Timetable</h2>
+                            <p>Add new class schedules and manage existing entries.</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Add Timetable Entry</h3>
+                        <form id="entryForm" class="form-grid mt-12" novalidate>
+                            <div class="field">
+                                <label for="day">Day</label>
+                                <select id="day" required>
+                                    <option value="">Select Day</option>
+                                    <option value="Monday">Monday</option>
+                                    <option value="Tuesday">Tuesday</option>
+                                    <option value="Wednesday">Wednesday</option>
+                                    <option value="Thursday">Thursday</option>
+                                    <option value="Friday">Friday</option>
+                                    <option value="Saturday">Saturday</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="subject">Subject Name</label>
+                                <input type="text" id="subject" placeholder="e.g., Data Structures" required>
+                            </div>
+                            <div class="field">
+                                <label for="faculty">Faculty Name</label>
+                                <input type="text" id="faculty" placeholder="e.g., Mr. Sharma" required>
+                            </div>
+                            <div class="field">
+                                <label for="section">Class/Section</label>
+                                <input type="text" id="section" placeholder="e.g., CSE-A" required>
+                            </div>
+                            <div class="field">
+                                <label for="room">Room Number</label>
+                                <input type="text" id="room" placeholder="e.g., R101" required>
+                            </div>
+                            <div class="field">
+                                <label for="startTime">Start Time</label>
+                                <input type="time" id="startTime" required>
+                            </div>
+                            <div class="field">
+                                <label for="endTime">End Time</label>
+                                <input type="time" id="endTime" required>
+                            </div>
+                            <div class="form-buttons">
+                                <button type="submit" class="btn btn-primary">Add Entry</button>
+                                <button type="button" id="resetBtn" class="btn btn-light">Reset Form</button>
+                            </div>
+                        </form>
+                        <div id="formError" class="alert alert-red hidden mt-12"></div>
+                    </div>
+
+                    <div class="card mt-20">
+                        <h3>All Timetable Entries (<span id="entryCount">0</span>)</h3>
+                        <div class="table-wrap mt-12">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Day</th>
+                                        <th>Subject</th>
+                                        <th>Faculty</th>
+                                        <th>Section</th>
+                                        <th>Room</th>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="entriesTableBody">
+                                    <tr><td colspan="9" class="center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. CONFLICT DETECTION -->
+                <section id="page-conflicts" class="page">
+                    <div class="page-head">
+                        <div>
+                            <h2>Conflict Detection</h2>
+                            <p>Run conflict checks directly on the Java backend.</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="actions-row">
+                            <button class="btn btn-primary" data-scope="faculty">Check Faculty Conflicts</button>
+                            <button class="btn btn-purple" data-scope="room">Check Classroom Conflicts</button>
+                            <button class="btn btn-orange" data-scope="section">Check Class/Section Conflicts</button>
+                            <button class="btn btn-red" data-scope="all">Detect All Conflicts</button>
+                        </div>
+
+                        <div id="conflictBanner" class="alert hidden mt-16"></div>
+                        <div id="conflictWarning" class="alert alert-orange hidden mt-12"></div>
+                        <div id="conflictList" class="conflict-grid mt-16">
+                            <p class="muted">Click a button above to detect conflicts.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. TIMETABLE OVERVIEW -->
+                <section id="page-overview" class="page">
+                    <div class="page-head">
+                        <div>
+                            <h2>Timetable Overview</h2>
+                            <p>Weekly class schedule from Monday to Saturday.</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div id="fullWeeklyGrid" class="weekly-grid"></div>
+                    </div>
+                </section>
+
+                <!-- 5. ABOUT PROJECT -->
+                <section id="page-about" class="page">
+                    <div class="page-head">
+                        <div>
+                            <h2>About Project</h2>
+                            <p>Core Java + Web Frontend College Project</p>
+                        </div>
+                    </div>
+                    <div class="two-col">
+                        <div class="card">
+                            <h3>Project Overview</h3>
+                            <p class="mt-12 muted">
+                                The Automated Timetable Conflict Detector lets college coordinators add and manage
+                                schedules while automatically checking for overlapping Faculty, Classroom, and Section
+                                bookings in Core Java.
+                            </p>
+                        </div>
+                        <div class="card">
+                            <h3>Conflict Detection Logic</h3>
+                            <p class="mt-12 muted">
+                                In <code>ConflictDetector.java</code>, entries stored in an <code>ArrayList</code> are
+                                compared using nested loops on the same day with <code>LocalTime</code>:
+                            </p>
+                            <pre class="code-box mt-12">start1 &lt; end2 &amp;&amp; start2 &lt; end1</pre>
+                            <p class="mt-12 muted">Back-to-back classes (e.g., 09:00–10:00 and 10:00–11:00) do not conflict.</p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div id="toastBox" class="toast-box"></div>
+    <script src="script.js"></script>
+</body>
+</html>
